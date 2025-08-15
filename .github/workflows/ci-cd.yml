@@ -18,6 +18,8 @@ jobs:
       SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
       ALLOWED_ORIGINS: ${{ secrets.ALLOWED_ORIGINS }}
       TOGETHER_API_KEY: ${{ secrets.TOGETHER_API_KEY }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
     steps:
       - name: Checkout repository
