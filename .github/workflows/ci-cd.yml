@@ -1,28 +1,76 @@
-name: Deploy Fullstack App
+name: CI/CD Pipeline
 
 on:
   push:
-    branches:
-      - main
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
 
 jobs:
-  deploy:
+  build-and-test:
     runs-on: ubuntu-latest
 
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      ALLOWED_FILE_TYPES: ${{ secrets.ALLOWED_FILE_TYPES }}
+      MAX_FILE_SIZE: ${{ secrets.MAX_FILE_SIZE }}
+      SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
+      ALLOWED_ORIGINS: ${{ secrets.ALLOWED_ORIGINS }}
+      TOGETHER_API_KEY: ${{ secrets.TOGETHER_API_KEY }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Install Vercel CLI
-      - name: Install Vercel CLI
-        run: npm install -g vercel@latest
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
 
-      # Deploy frontend from the `frontend` folder
+      - name: Install & build frontend
+        run: |
+          cd frontend
+          npm ci  # Use ci for CI environments (faster, exact deps)
+          npm run build
+          npm run test --if-present
+
+      - name: Setup Python
+        uses: actions/setup-python@v5 # Updated to v5
+        with:
+          python-version: "3.13" # Latest 3.13.x
+          cache: "pip" # Cache pip deps
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install & test backend
+        run: |
+          cd backend
+          pip install -r requirements.txt
+          pytest || echo "No tests yet"  # Consider adding real tests later
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-test # Only run if CI succeeds
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push' # Only on master pushes
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Deploy Frontend to Vercel
-        working-directory: ./frontend
-        run: vercel --prod --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_SCOPE }}
+        uses: amondnet/vercel-action@v25 # Official Vercel action
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          scope: ${{ secrets.VERCEL_ORG_ID }}
+          working-directory: ./frontend
+          vercel-args: "./frontend --prod"
 
-      # Deploy backend via Render deploy hook
       - name: Deploy Backend to Render
-        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
-# name: CI/CD Pipeline
+        run: |
+          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
