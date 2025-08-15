@@ -24,14 +24,17 @@ export async function POST(request) {
     const backendFormData = new FormData();
     backendFormData.append("file", file);
 
-    const response = await fetch("http://localhost:8000/upload", {
-      method: "POST",
-      headers: {
-        Authorization: token,
-        // Don't set Content-Type manually for FormData
-      },
-      body: backendFormData,
-    });
+    const response = await fetch(
+      "https://advanced-ai-analyst.onrender.com/upload",
+      {
+        method: "POST",
+        headers: {
+          Authorization: token,
+          // Don't set Content-Type manually for FormData
+        },
+        body: backendFormData,
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);

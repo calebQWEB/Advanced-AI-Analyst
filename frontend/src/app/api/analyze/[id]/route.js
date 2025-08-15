@@ -9,13 +9,16 @@ export async function POST(request, { params }) {
       });
     }
 
-    const response = await fetch(`http://localhost:8000/analyze/${id}`, {
-      method: "POST",
-      headers: {
-        Authorization: token,
-        Accept: "application/json",
-      },
-    });
+    const response = await fetch(
+      `https://advanced-ai-analyst.onrender.com/analyze/${id}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: token,
+          Accept: "application/json",
+        },
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);

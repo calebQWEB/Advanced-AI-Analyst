@@ -236,7 +236,7 @@ Update ALLOWED_ORIGINS in Render to include the frontend domain.
 - Create .github/workflows/ci.yml
 
 ```
-name: CI Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
@@ -248,7 +248,6 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    # Environment variables for BOTH frontend & backend
     env:
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
@@ -259,36 +258,56 @@ jobs:
       TOGETHER_API_KEY: ${{ secrets.TOGETHER_API_KEY }}
 
     steps:
-      # 1. Checkout the repo
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # 2. Setup Node.js for frontend
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: "23"
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
 
-      # 3. Install & build frontend
       - name: Install & build frontend
         run: |
           cd frontend
-          npm install
+          npm ci  # Use ci for CI environments (faster, exact deps)
           npm run build
           npm run test --if-present
 
-      # 4. Setup Python for backend
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5 # Updated to v5
         with:
-          python-version: "3.13.5"
+          python-version: "3.13" # Latest 3.13.x
+          cache: "pip" # Cache pip deps
+          cache-dependency-path: backend/requirements.txt
 
-      # 5. Install & test backend
       - name: Install & test backend
         run: |
           cd backend
           pip install -r requirements.txt
-          pytest || echo "No tests yet"
+          pytest || echo "No tests yet"  # Consider adding real tests later
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-test # Only run if CI succeeds
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push' # Only on master pushes
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy Frontend to Vercel
+        uses: amondnet/vercel-action@v25 # Official Vercel action
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: frontend # Deploy only frontend dir
+          vercel-args: "--prod" # Deploy to production
+
+      - name: Deploy Backend to Render
+        run: |
+          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}  # Triggers Render deploy via webhook
 ```
 
 ### Add secrets in GitHub Settings.

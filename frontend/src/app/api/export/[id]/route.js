@@ -9,13 +9,16 @@ export async function POST(request, { params }) {
       });
     }
 
-    const response = await fetch(`http://localhost:8000/export/pdf/${id}`, {
-      method: "POST",
-      headers: {
-        Authorization: token,
-        Accept: "application/pdf",
-      },
-    });
+    const response = await fetch(
+      `https://advanced-ai-analyst.onrender.com/export/pdf/${id}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: token,
+          Accept: "application/pdf",
+        },
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);

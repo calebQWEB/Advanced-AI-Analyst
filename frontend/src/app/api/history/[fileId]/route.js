@@ -10,7 +10,7 @@ export async function GET(request, { params }) {
     }
 
     const response = await fetch(
-      `http://localhost:8000/chat/history/${fileId}`,
+      `https://advanced-ai-analyst.onrender.com/chat/history/${fileId}`,
       {
         method: "GET",
         headers: {

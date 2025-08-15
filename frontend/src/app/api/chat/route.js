@@ -21,15 +21,18 @@ export async function POST(request) {
         }
       );
     }
-    const response = await fetch("http://localhost:8000/chat", {
-      method: "POST",
-      headers: {
-        Authorization: token,
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ file_id: file_id, question }),
-    });
+    const response = await fetch(
+      "https://advanced-ai-analyst.onrender.com/chat",
+      {
+        method: "POST",
+        headers: {
+          Authorization: token,
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ file_id: file_id, question }),
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);

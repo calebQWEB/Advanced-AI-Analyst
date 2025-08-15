@@ -44,13 +44,16 @@ export async function DELETE(request, { params }) {
       });
     }
 
-    const response = await fetch(`http://localhost:8000/files/${fileId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: token,
-        Accept: "application/json",
-      },
-    });
+    const response = await fetch(
+      `https://advanced-ai-analyst.onrender.com/files/${fileId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: token,
+          Accept: "application/json",
+        },
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
