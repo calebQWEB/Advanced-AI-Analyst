@@ -248,38 +248,47 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
+    # Environment variables for BOTH frontend & backend
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      ALLOWED_FILE_TYPES: ${{ secrets.ALLOWED_FILE_TYPES }}
+      MAX_FILE_SIZE: ${{ secrets.MAX_FILE_SIZE }}
+      SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
+      ALLOWED_ORIGINS: ${{ secrets.ALLOWED_ORIGINS }}
+      TOGETHER_API_KEY: ${{ secrets.TOGETHER_API_KEY }}
+
     steps:
-      # Checkout code
+      # 1. Checkout the repo
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Setup Node.js for frontend
+      # 2. Setup Node.js for frontend
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "23"
 
-      # Install & build frontend
-      - name: Install frontend deps
+      # 3. Install & build frontend
+      - name: Install & build frontend
         run: |
           cd frontend
           npm install
           npm run build
           npm run test --if-present
 
-      # Setup Python for backend
+      # 4. Setup Python for backend
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.13.5"
 
-      # Install & test backend
-      - name: Install backend deps
+      # 5. Install & test backend
+      - name: Install & test backend
         run: |
           cd backend
           pip install -r requirements.txt
           pytest || echo "No tests yet"
-
 ```
 
 ### Add secrets in GitHub Settings.
