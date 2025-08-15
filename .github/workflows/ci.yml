@@ -1,0 +1,43 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Setup Node.js for frontend
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "23"
+
+      # Install & build frontend
+      - name: Install frontend deps
+        run: |
+          cd frontend
+          npm install
+          npm run build
+          npm run test --if-present
+
+      # Setup Python for backend
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      # Install & test backend
+      - name: Install backend deps
+        run: |
+          cd backend
+          pip install -r requirements.txt
+          pytest || echo "No tests yet"

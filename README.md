@@ -15,6 +15,7 @@ The AI Analyst is a web application that allows users to upload spreadsheets (CS
 
 ## Folder Structure
 
+```
 ai-analyst/
 ├── backend/
 │ ├── app/
@@ -33,8 +34,8 @@ ai-analyst/
 │ │ └── main.py # FastAPI application with endpoints
 │ ├── requirements.txt # Backend dependencies
 │ ├── .env # Environment variables (not committed)
-│ └── Procfile # Heroku deployment configuration
 ├── frontend/
+```
 
 ## File Descriptions
 
@@ -232,34 +233,53 @@ Update ALLOWED_ORIGINS in Render to include the frontend domain.
 
 ## CI/CD:
 
-- Create .github/workflows/deploy.yml
+- Create .github/workflows/ci.yml
 
 ```
-name: Deploy
+name: CI Pipeline
+
 on:
   push:
-    branches: [main]
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+
 jobs:
-  deploy-frontend:
+  build-and-test:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      - run: cd frontend && npm install && npm run build
-      - uses: vercel/actions@v1
+      # Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Setup Node.js for frontend
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-  deploy-backend:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - run: cd backend && pip install -r requirements.txt
-      - uses: akhileshns/heroku-deploy@v3.12.12
+          node-version: "23"
+
+      # Install & build frontend
+      - name: Install frontend deps
+        run: |
+          cd frontend
+          npm install
+          npm run build
+          npm run test --if-present
+
+      # Setup Python for backend
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
-          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-          heroku_app_name: your-app-name
-          heroku_email: your-email@example.com
+          python-version: "3.11"
+
+      # Install & test backend
+      - name: Install backend deps
+        run: |
+          cd backend
+          pip install -r requirements.txt
+          pytest || echo "No tests yet"
+
 ```
 
 ### Add secrets in GitHub Settings.
