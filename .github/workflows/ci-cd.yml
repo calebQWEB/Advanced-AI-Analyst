@@ -65,10 +65,12 @@ jobs:
         uses: amondnet/vercel-action@v25 # Official Vercel action
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: frontend # Deploy only frontend dir
-          vercel-args: "--prod" # Deploy to production
+          scope: ${{ secrets.VERCEL_ORG_ID }}
+          working-directory: frontend
+          vercel-args: "--prod"
 
       - name: Deploy Backend to Render
         run: |
-          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}  # Triggers Render deploy via webhook
+          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}

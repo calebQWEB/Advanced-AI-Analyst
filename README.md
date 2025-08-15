@@ -256,6 +256,8 @@ jobs:
       SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
       ALLOWED_ORIGINS: ${{ secrets.ALLOWED_ORIGINS }}
       TOGETHER_API_KEY: ${{ secrets.TOGETHER_API_KEY }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
     steps:
       - name: Checkout repository
@@ -301,13 +303,15 @@ jobs:
         uses: amondnet/vercel-action@v25 # Official Vercel action
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: frontend # Deploy only frontend dir
-          vercel-args: "--prod" # Deploy to production
+          scope: ${{ secrets.VERCEL_ORG_ID }}
+          working-directory: frontend
+          vercel-args: "--prod"
 
       - name: Deploy Backend to Render
         run: |
-          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}  # Triggers Render deploy via webhook
+          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
 ```
 
 ### Add secrets in GitHub Settings.
