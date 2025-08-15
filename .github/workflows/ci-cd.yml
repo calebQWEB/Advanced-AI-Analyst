@@ -68,8 +68,7 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           scope: ${{ secrets.VERCEL_ORG_ID }}
-          working-directory: ./frontend
-          vercel-args: "./frontend --prod"
+          vercel-args: "--prod"
 
       - name: Deploy Backend to Render
         run: |
