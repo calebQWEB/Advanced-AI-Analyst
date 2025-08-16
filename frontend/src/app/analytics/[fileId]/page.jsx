@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import AnalyticsDashboard from "../_components/AnalyticsDashboard";
 
 export default function Analytics() {
-  const { session } = useAuth();
+  const { user, session } = useAuth();
   const { fileId } = useParams();
   const [fileData, setFileData] = useState(null);
   const [getFileError, setGetFileError] = useState("");
@@ -156,6 +156,27 @@ export default function Analytics() {
       <section className="px-8 py-4 bg-gray-900 min-h-screen">
         <LoadingSpinner message="Fetching your files" />
       </section>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-900">
+        <div className="text-center text-gray-400">
+          <h1 className="text-3xl font-bold mb-4">
+            Please log in to access your dashboard
+          </h1>
+          <p className="mb-6">
+            You need to be authenticated to view this page.
+          </p>
+          <Link
+            href="/login"
+            className="inline-flex items-center justify-center gap-2 px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-full shadow-lg transform transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-opacity-75"
+          >
+            Go to Login
+          </Link>
+        </div>
+      </div>
     );
   }
 
